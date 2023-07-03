@@ -10,14 +10,9 @@ export default class Actor {
       velocityY,
       height,
       width,
-      moveDirection,
-      movementSpeed,
-      canJump,
       spriteTexture,
       OrientationIsFlipped,
       drawAttackBox,
-      lightAttackVerticalOffset,
-      heavyAttackVerticalOffset,
       characterType
     }
   ) {
@@ -29,15 +24,15 @@ export default class Actor {
     this.velocityY = velocityY;
     this.height = height;
     this.width = width;
-    this.moveDirection = moveDirection;
-    this.movementSpeed = movementSpeed;
-    this.canJump = canJump;
+    this.moveDirection = 'none';
+    this.movementSpeed = 0;
+    this.canJump = true;
     this.spriteTexture = spriteTexture;
     this.OrientationIsFlipped = OrientationIsFlipped;
     this.drawAttackBox = drawAttackBox;
     this.characterType = characterType;
     this.drawAttackBoxToggle = true;
-    this.lightAttackVerticalOffset = lightAttackVerticalOffset;
+    this.lightAttackVerticalOffset = 50;
     this.lastAttackUsed = 'none';
     this.lightAttackBox = {
       position: {
@@ -48,7 +43,7 @@ export default class Actor {
       height: 50
     };
     this.lightAttackOnCooldown = false;
-    this.heavyAttackVerticalOffset = heavyAttackVerticalOffset;
+    this.heavyAttackVerticalOffset = 50;
     this.heavyAttackBox = {
       position: {
         x: this.position.x,

@@ -25,15 +25,10 @@ const player = new Actor({
   velocityY: 0,
   height: 150,
   width: 50,
-  moveDirection: 'none',
-  movementSpeed: 0,
-  canJump: true,
   spriteTexture: 'red',
   OrientationIsFlipped: false,
   drawAttackBox: true,
   characterType: 'player',
-  lightAttackVerticalOffset: 50,
-  heavyAttackVerticalOffset: 50,
 });
 
 const enemy = new Actor({
@@ -47,15 +42,10 @@ const enemy = new Actor({
   velocityY: 0,
   height: 150,
   width: 50,
-  moveDirection: 'none',
-  movementSpeed: 0,
-  canJump: true,
   spriteTexture: 'blue',
   OrientationIsFlipped: true,
   drawAttackBox: true,
   characterType: 'AI',
-  lightAttackVerticalOffset: 50,
-  heavyAttackVerticalOffset: 50,
 });
 
 setInterval(() => {
