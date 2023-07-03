@@ -13,9 +13,26 @@ c.fillRect(0, 0, 1024, 576);
 
 let gravity = 1;
 let floorHeight = 95;
+let lastAttacker = 'none';
 
 class Sprite {
-  constructor({position, velocityY, height, width, moveDirection, movementSpeed, canJump, spriteTexture, isOrientationFlipped}) {
+  constructor(
+    {
+      position,
+      velocityY,
+      height,
+      width,
+      moveDirection,
+      movementSpeed,
+      canJump,
+      spriteTexture,
+      OrientationIsFlipped,
+      drawAttackBox,
+      lightAttackVerticalOffset,
+      lightAttackOnCooldown,
+      characterType
+    }
+  ) {
     this.position = position;
     this.velocityY = velocityY;
     this.height = height;
@@ -23,66 +40,104 @@ class Sprite {
     this.moveDirection = moveDirection;
     this.movementSpeed = movementSpeed;
     this.canJump = canJump;
+    this.lightAttackVerticalOffset = lightAttackVerticalOffset;
     this.lightAttackBox = {
-      position,
+      position: {
+        x: this.position.x,
+        y: this.position.y + this.lightAttackVerticalOffset
+      },
       width: 120,
       height: 50
     };
+    this.lightAttackOnCooldown = lightAttackOnCooldown;
     this.spriteTexture = spriteTexture;
-    this.isOrientationFlipped = isOrientationFlipped;
+    this.OrientationIsFlipped = OrientationIsFlipped;
+    this.drawAttackBox = drawAttackBox;
+    this.characterType = characterType;
   }
 
   draw() {
     c.fillStyle = this.spriteTexture;
     c.fillRect(this.position.x, this.position.y, this.width, this.height);
-
-    // Attack Box
-    c.fillStyle = 'yellow';
-    c.fillRect(this.lightAttackBox.position.x, this.lightAttackBox.position.y, this.lightAttackBox.width, this.lightAttackBox.height);
+      // Attack Box
+    if (lastAttacker === this.characterType && this.drawAttackBox && !this.lightAttackOnCooldown) {
+      c.fillStyle = 'yellow';
+      c.fillRect(this.lightAttackBox.position.x, this.lightAttackBox.position.y, this.lightAttackBox.width, this.lightAttackBox.height);
+      this.lightAttackOnCooldown = true;
+      const undrawAttackBox = () => {
+        this.drawAttackBox = false;
+        this.lightAttackOnCooldown = false;
+      }
+      setTimeout(undrawAttackBox, 250);
+    }
   }
 
   update() {
-    if (this.isOrientationFlipped) {
-      this.lightAttackBox.position = {
-        x: this.position.x - 70,
-        y: this.position.y + 100
-      }
-    } else {
-      this.lightAttackBox.position = {
-        x: this.position.x,
-        y: this.position.y + 100
-      }
-    }
 
-    this.draw();
     this.position.y += this.velocityY;
 
-    // Gravity
+      // Gravity
     if (this.velocityY + this.height + this.position.y + floorHeight >= canvas.height) {
       this.velocityY = 0;
     } else {
       this.velocityY += gravity;
     }
 
+      // Jumping
     if (this.velocityY + this.height + this.position.y + floorHeight >= canvas.height) {
       this.canJump = true;
     }
 
-    // Lateral Movement
+      // Lateral Movement
     if (this.moveDirection === 'right') {
-      if (this.width + this.position.x < canvas.width) {
+      if (this.width + this.position.x + 1 < canvas.width) {
         this.position.x += this.movementSpeed;
       }
     } else if (this.moveDirection === 'left') {
-      if (this.position.x > 0) {
+      if (this.position.x > 1) {
         this.position.x -= this.movementSpeed;
       }
     }
+
+      // Attack Box Drawing
+    if (this.OrientationIsFlipped) {
+      this.lightAttackBox.position.x = this.position.x - 70;
+    } else {
+      this.lightAttackBox.position.x = this.position.x;
+    }
+
+    this.lightAttackBox.position.y = this.position.y + this.lightAttackVerticalOffset;
+
+    this.draw();
   }
 
   jump() {
     this.canJump = false;
     this.velocityY = -19;
+  }
+
+  lightAttack(enemy) {
+    if (!this.lightAttackOnCooldown) {
+        // Attack Collision Detection
+      if (
+        this.position.y + this.lightAttackVerticalOffset + this.lightAttackBox.height >= enemy.position.y
+          && this.position.y + this.lightAttackVerticalOffset + this.lightAttackBox.height <= enemy.position.y + enemy.height
+      ) {
+        if (
+          !this.OrientationIsFlipped
+            && this.lightAttackBox.position.x + this.lightAttackBox.width >= enemy.position.x
+            && this.lightAttackBox.position.x <= enemy.position.x
+      
+          || this.OrientationIsFlipped
+            && this.lightAttackBox.position.x <= enemy.position.x + enemy.width
+            && this.lightAttackBox.position.x + this.lightAttackBox.width >= enemy.position.x + enemy.width
+          ) {
+          console.log('hit on ' + `${enemy.characterType}`);
+          lastAttacker = this.characterType;
+          this.drawAttackBox = true;
+        }
+      }
+    }
   }
 }
 
@@ -90,8 +145,8 @@ const animate = () => {
   window.requestAnimationFrame(animate);
   c.fillStyle = backgroundPattern;
   c.fillRect(0, 0, canvas.width, canvas.height);
-  player.update();
   enemy.update();
+  player.update();
 }
 
 const player = new Sprite({
@@ -106,12 +161,16 @@ const player = new Sprite({
   movementSpeed: 0,
   canJump: true,
   spriteTexture: 'red',
-  isOrientationFlipped: false
+  OrientationIsFlipped: false,
+  drawAttackBox: true,
+  characterType: 'player',
+  lightAttackVerticalOffset: 50,
+  lightAttackOnCooldown: false
 });
 
 const enemy = new Sprite({
   position: {
-    x: 874, 
+    x: 874,
     y: 331
   },
   velocityY: 0,
@@ -121,7 +180,11 @@ const enemy = new Sprite({
   movementSpeed: 0,
   canJump: true,
   spriteTexture: 'blue',
-  isOrientationFlipped: true
+  OrientationIsFlipped: true,
+  drawAttackBox: true,
+  characterType: 'AI',
+  lightAttackVerticalOffset: 50,
+  lightAttackOnCooldown: false
 });
 
 animate();
@@ -130,7 +193,8 @@ let keyIsPressedDown = {
   ArrowRight: false,
   ArrowLeft: false,
   ArrowUp: false,
-  ArrowDown: false
+  ArrowDown: false,
+  Slash: false
 }
 
 window.addEventListener('keydown', (event) => {
@@ -139,13 +203,13 @@ window.addEventListener('keydown', (event) => {
       player.movementSpeed = 9;
       player.moveDirection = 'right';
       keyIsPressedDown.ArrowRight = true;
-      player.isOrientationFlipped = false;
+      player.OrientationIsFlipped = false;
       break;
     case 'ArrowLeft':
       keyIsPressedDown.ArrowLeft = true;
       player.movementSpeed = 9;
       player.moveDirection = 'left';
-      player.isOrientationFlipped = true;
+      player.OrientationIsFlipped = true;
       break;
     case 'ArrowUp':
       if (player.canJump) {
@@ -155,10 +219,13 @@ window.addEventListener('keydown', (event) => {
       break;
     case 'ArrowDown':
       break;
+    case '/':
+      keyIsPressedDown.Slash = true;
+      player.lightAttack(enemy);
+      break;
   }
 })
 
-// check if a valid key is still down before resetting movement
 window.addEventListener('keyup', (event) => {
   switch(event.key) {
     case 'ArrowRight':
@@ -168,7 +235,7 @@ window.addEventListener('keyup', (event) => {
         player.moveDirection = 'none';
       } else {
         player.moveDirection = 'left';
-        player.isOrientationFlipped = true;
+        player.OrientationIsFlipped = true;
       }
       break;
     case 'ArrowLeft':
@@ -178,7 +245,7 @@ window.addEventListener('keyup', (event) => {
         player.moveDirection = 'none';
       } else {
         player.moveDirection = 'right';
-        player.isOrientationFlipped = false;
+        player.OrientationIsFlipped = false;
       }
       break;
     case 'ArrowUp':
@@ -186,6 +253,9 @@ window.addEventListener('keyup', (event) => {
       break;
     case 'ArrowDown':
       break;
+    case '/':
+      keyIsPressedDown.Slash = false;
+    break;
   }
 })
 
