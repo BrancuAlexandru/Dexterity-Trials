@@ -32,6 +32,7 @@ export default class Actor {
     this.drawAttackBox = drawAttackBox;
     this.characterType = characterType;
     this.drawAttackBoxToggle = true;
+    this.healthPoints = 100;
     this.lightAttackVerticalOffset = 50;
     this.lastAttackUsed = 'none';
     this.lightAttackBox = {
@@ -168,6 +169,7 @@ export default class Actor {
           console.log('light hit on ' + `${enemy.characterType}`);
           lastAttacker = this.characterType;
           this.drawAttackBoxToggle = true;
+          enemy.healthPoints -= 10;
           this.coolDownAttack('light');
         }
       }
@@ -194,6 +196,7 @@ export default class Actor {
           console.log('heavy hit on ' + `${enemy.characterType}`);
           lastAttacker = this.characterType;
           this.drawAttackBoxToggle = true;
+          enemy.healthPoints -= 20;
           this.coolDownAttack('heavy');
         }
       }
