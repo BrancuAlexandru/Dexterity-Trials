@@ -33,7 +33,7 @@ const player = new Actor({
   drawAttackBox: true,
   characterType: 'player',
   lightAttackVerticalOffset: 50,
-  lightAttackOnCooldown: false
+  heavyAttackVerticalOffset: 50,
 });
 
 const enemy = new Actor({
@@ -55,8 +55,16 @@ const enemy = new Actor({
   drawAttackBox: true,
   characterType: 'AI',
   lightAttackVerticalOffset: 50,
-  lightAttackOnCooldown: false
+  heavyAttackVerticalOffset: 50,
 });
+
+setInterval(() => {
+  enemy.lightAttack(player);
+}, 2000)
+
+setInterval(() => {
+  enemy.heavyAttack(player);
+}, 3000)
 
 const animate = () => {
   window.requestAnimationFrame(animate);
@@ -71,7 +79,8 @@ let keyIsPressedDown = {
   ArrowLeft: false,
   ArrowUp: false,
   ArrowDown: false,
-  Slash: false
+  Slash: false,
+  Dot: false
 }
 
 window.addEventListener('keydown', (event) => {
@@ -99,6 +108,10 @@ window.addEventListener('keydown', (event) => {
     case '/':
       keyIsPressedDown.Slash = true;
       player.lightAttack(enemy);
+      break;
+    case '.':
+      keyIsPressedDown.Dot = true;
+      player.heavyAttack(enemy);
       break;
   }
 })
@@ -132,7 +145,10 @@ window.addEventListener('keyup', (event) => {
       break;
     case '/':
       keyIsPressedDown.Slash = false;
-    break;
+      break;
+    case '.':
+      keyIsPressedDown.Dot = false;
+      break;
   }
 })
 
