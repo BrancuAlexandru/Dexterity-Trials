@@ -120,18 +120,31 @@ export default class Actor {
     this.canJump = false;
     this.velocityY = -19;
   }
-  // CREATE GLOBAL COOLDOWN BETWEEN ALL ABILITIES
   coolDownAttack(type) {
     if (type === 'light') {
+      this.lightAttackOnCooldown = true;
+      this.heavyAttackOnCooldown = true;
       setTimeout(() => {
         this.drawAttackBoxToggle = false;
         this.lightAttackOnCooldown = false;
       }, 250);
+        // also cooling down heavy attack to avoid
+        // being able to use both attacks simultaneously
+      setTimeout(() => {
+        this.heavyAttackOnCooldown = false;
+      }, 250);
     } else if (type === 'heavy') {
+      this.heavyAttackOnCooldown = true;
+      this.lightAttackOnCooldown = true;
       setTimeout(() => {
         this.drawAttackBoxToggle = false;
         this.heavyAttackOnCooldown = false;
       }, 500);
+        // also cooling down light attack to avoid
+        // being able to use both attacks simultaneously
+      setTimeout(() => {
+        this.lightAttackOnCooldown = false;
+      }, 250);
     }
   }
 
@@ -155,7 +168,6 @@ export default class Actor {
           console.log('light hit on ' + `${enemy.characterType}`);
           lastAttacker = this.characterType;
           this.drawAttackBoxToggle = true;
-          this.lightAttackOnCooldown = true;
           this.coolDownAttack('light');
         }
       }
@@ -182,7 +194,6 @@ export default class Actor {
           console.log('heavy hit on ' + `${enemy.characterType}`);
           lastAttacker = this.characterType;
           this.drawAttackBoxToggle = true;
-          this.heavyAttackOnCooldown = true;
           this.coolDownAttack('heavy');
         }
       }
