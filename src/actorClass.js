@@ -7,7 +7,6 @@ export default class Actor {
       canvasContext,
       floorHeight,
       position,
-      velocityY,
       height,
       width,
       spriteTexture,
@@ -21,11 +20,11 @@ export default class Actor {
     this.gravity = 1;
     this.floorHeight = floorHeight;
     this.position = position;
-    this.velocityY = velocityY;
+    this.velocityY = 0;
+    this.velocityX = 0;
     this.height = height;
     this.width = width;
     this.moveDirection = 'none';
-    this.movementSpeed = 0;
     this.canJump = true;
     this.spriteTexture = spriteTexture;
     this.OrientationIsFlipped = OrientationIsFlipped;
@@ -94,11 +93,11 @@ export default class Actor {
       // Lateral Movement
     if (this.moveDirection === 'right') {
       if (this.width + this.position.x + 1 < this.canvas.width) {
-        this.position.x += this.movementSpeed;
+        this.position.x += this.velocityX;
       }
     } else if (this.moveDirection === 'left') {
       if (this.position.x > 1) {
-        this.position.x -= this.movementSpeed;
+        this.position.x -= this.velocityX;
       }
     }
 
