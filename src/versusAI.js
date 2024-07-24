@@ -22,7 +22,6 @@ const player = new Actor({
     x: 100, 
     y: 331 
   },
-  velocityY: 0,
   height: 150,
   width: 50,
   spriteTexture: 'red',
@@ -39,7 +38,6 @@ const enemy = new Actor({
     x: 874,
     y: 331
   },
-  velocityY: 0,
   height: 150,
   width: 50,
   spriteTexture: 'blue',
@@ -47,14 +45,6 @@ const enemy = new Actor({
   drawAttackBox: true,
   characterType: 'AI',
 });
-
-setInterval(() => {
-  enemy.lightAttack(player);
-}, 2000)
-
-setInterval(() => {
-  enemy.heavyAttack(player);
-}, 3000)
 
 const animate = () => {
   window.requestAnimationFrame(animate);
@@ -76,14 +66,14 @@ let keyIsPressedDown = {
 window.addEventListener('keydown', (event) => {
   switch(event.key) {
     case 'ArrowRight':
-      player.movementSpeed = 9;
+      player.velocityX = 9;
       player.moveDirection = 'right';
       keyIsPressedDown.ArrowRight = true;
       player.OrientationIsFlipped = false;
       break;
     case 'ArrowLeft':
       keyIsPressedDown.ArrowLeft = true;
-      player.movementSpeed = 9;
+      player.velocityX = 9;
       player.moveDirection = 'left';
       player.OrientationIsFlipped = true;
       break;
@@ -111,7 +101,7 @@ window.addEventListener('keyup', (event) => {
     case 'ArrowRight':
       keyIsPressedDown.ArrowRight = false;
       if (!keyIsPressedDown.ArrowLeft) {
-        player.movementSpeed = 0;
+        player.velocityX = 0;
         player.moveDirection = 'none';
       } else {
         player.moveDirection = 'left';
@@ -121,7 +111,7 @@ window.addEventListener('keyup', (event) => {
     case 'ArrowLeft':
       keyIsPressedDown.ArrowLeft = false;
       if (!keyIsPressedDown.ArrowRight) {
-        player.movementSpeed = 0;
+        player.velocityX = 0;
         player.moveDirection = 'none';
       } else {
         player.moveDirection = 'right';
